@@ -171,7 +171,14 @@ const cn=$('#candle');cn.addEventListener('pointerdown',e=>{const r=cn.getBoundi
  const l=document.createElement('img');l.src=LOTUS;l.className='lot';l.style.cssText=`left:${x}px;top:${y}px`;cn.appendChild(l);gsap.to(l,{y:-70-Math.random()*60,x:'+='+(Math.random()*60-30),rotation:Math.random()*40-20,opacity:0,duration:5,ease:'power1.out',onComplete:()=>l.remove()})});
 /* ===== scroll scenes ===== */
 let aosReady=false;
+function removeGalleryAos(){
+ $$('#mas .gi').forEach(el=>{
+  [...el.attributes].filter(attr=>attr.name.startsWith('data-aos')).forEach(attr=>el.removeAttribute(attr.name));
+  el.classList.remove('aos-init','aos-animate')
+ })
+}
 function initScrollAnimations(){
+ removeGalleryAos();
  if(reduce||!window.AOS)return false;
  const targets=[
   ...$$('#rest > section h2'),
