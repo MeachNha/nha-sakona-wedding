@@ -14,7 +14,7 @@ $$('[data-img]').forEach(e=>e.style.backgroundImage=`url(${IMGS[e.dataset.img]})
 $('#candle').style.backgroundImage=`url(${IMGS[6]})`;
 $('#prog').insertAdjacentHTML('beforeend',PROG.map(([t,r])=>`<section class="pday"><h3>${t}</h3>${r.map(([h,w,m])=>`<div class="prow km ${m?'prow--main':''}"><time>ម៉ោង ${h}</time><span>${w}</span></div>`).join('')}</section>`).join(''));
 $('#track').innerHTML=IMGS.map((s,i)=>`<div class="slide"><div class="frm"><div class="ph" style="background-image:url(${s})"></div></div><p class="km"><b>${kn(i+1)}</b>${LAB(i)}</p></div>`).join('');
-$('#mas').innerHTML=IMGS.map((s,i)=>`<button class="gi" data-i="${i}" aria-label="Photo ${i+1}"><img src="${s}" alt="" loading="lazy"></button>`).join('');
+$('#mas').innerHTML=IMGS.map((s,i)=>`<button class="gi" data-i="${i}" aria-label="Photo ${i+1}"><img src="${s}" alt="" loading="eager" decoding="async"></button>`).join('');
 $('#qrs').innerHTML=QRS.map(([s,l,kmRole,enRole])=>`<figure><figcaption><span class="qrole km" data-km>${kmRole}</span><span class="qrole en" data-en>${enRole}</span><span class="qbank">${l}</span></figcaption><img src="${s}" alt="${l} ${enRole} payment QR"><a class="btn" download="${l}.jpg" href="${s}"><span data-km class="km">រក្សាទុក QR</span><span data-en>Save QR</span></a></figure>`).join('');
 // scalloped photo frame (clip + gold outline)
 (function(){const nx=8,ny=11,a=.02,sx=(1-2*a)/nx,sy=(1-2*a)/ny;let d=`M${a} ${a}`;
@@ -233,9 +233,9 @@ function scenes(){$('#rest').style.display='block';gsap.set('#alb',{x:0,scale:1}
  const galleryItems=$$('.gi');
  gsap.set(galleryItems,{opacity:0,y:64,rotateX:-12,scale:.92,transformPerspective:1000,transformOrigin:'50% 85%'});
  ScrollTrigger.batch(galleryItems,{start:'top 88%',once:true,interval:.12,batchMax:3,onEnter:items=>{
-  gsap.to(items,{opacity:1,y:0,rotateX:0,scale:1,duration:1,stagger:.16,ease:'power3.out',overwrite:true,onComplete:()=>{
+  gsap.to(items,{opacity:1,y:0,rotateX:0,scale:1,duration:1,stagger:.16,ease:'power3.out',overwrite:true,clearProps:'transform',onComplete:()=>{
    items.forEach((item,i)=>{
-    gsap.fromTo(item.querySelector('img'),{scale:1.1},{scale:1,duration:1.25,ease:'power2.out',delay:i*.1});
+    gsap.fromTo(item.querySelector('img'),{scale:1.1},{scale:1,duration:1.25,ease:'power2.out',delay:i*.1,clearProps:'transform'});
     item.style.setProperty('--shine-delay',`${(+item.dataset.i%5)*.7}s`);
     item.classList.add('shine')
    })
