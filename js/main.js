@@ -177,12 +177,11 @@ function initScrollAnimations(){
   ...$$('#rest > section h2'),
   ...$$('#rest > section .lead'),
   ...$$('#venue .sk'),
-  ...$$('#mas .gi'),
   ...$$('#qrs figure'),
   ...$$('#finale .sh > *')
  ];
  targets.forEach((el,i)=>{
-  const image=el.matches('.gi,.sk,#qrs figure');
+  const image=el.matches('.sk,#qrs figure');
   el.dataset.aos=image?'zoom-in-up':'fade-up';
   el.dataset.aosDuration=image?'950':'800';
   if(el.matches('.gi'))el.dataset.aosDelay=String(Math.min((+el.dataset.i%4)*80,240));
@@ -191,11 +190,7 @@ function initScrollAnimations(){
  AOS.refreshHard();
  return true
 }
-function scenes(){$('#rest').style.display='block';gsap.set('#alb',{x:0,scale:1});window.albumLay(0);$('#pill').classList.add('show');
- const useAOS=initScrollAnimations();
- gsap.to('#vine',{scaleY:1,ease:'none',scrollTrigger:{start:0,end:'max',scrub:true}});
- lockPrep('#finale');ScrollTrigger.create({trigger:'#finale .lockup',start:'top 85%',once:true,onEnter:()=>lockPlay('#finale',gsap.timeline(),0)});
- ScrollTrigger.create({trigger:'#cdls',start:'top 80%',once:true,onEnter:()=>$$('.cdl').forEach((c,i)=>setTimeout(()=>c.classList.add('on'),i*450))});
+function setupAlbumAutoOpen(){
  ScrollTrigger.create({trigger:'#album',start:'top 55%',once:true,onEnter:()=>{
   holdAutoScroll();
   const target=$('#alb .lf:nth-child(6) .fc.rv i');
@@ -205,26 +200,39 @@ function scenes(){$('#rest').style.display='block';gsap.set('#alb',{x:0,scale:1}
    window.albumHint().finally(startAutoScroll)
   }else requestAnimationFrame(waitForPageTop)};
   requestAnimationFrame(waitForPageTop)
- }});
- if(reduce){$$('.prow').forEach(r=>r.classList.add('on'));return ScrollTrigger.refresh()}
+ }})
+}
+function scenes(){$('#rest').style.display='block';gsap.set('#alb',{x:0,scale:1});window.albumLay(0);$('#pill').classList.add('show');
+ const useAOS=initScrollAnimations();
+ gsap.to('#vine',{scaleY:1,ease:'none',scrollTrigger:{start:0,end:'max',scrub:true}});
+ lockPrep('#finale');ScrollTrigger.create({trigger:'#finale .lockup',start:'top 85%',once:true,onEnter:()=>lockPlay('#finale',gsap.timeline(),0)});
+ ScrollTrigger.create({trigger:'#cdls',start:'top 80%',once:true,onEnter:()=>$$('.cdl').forEach((c,i)=>setTimeout(()=>c.classList.add('on'),i*450))});
+ if(reduce){setupAlbumAutoOpen();$$('.prow').forEach(r=>r.classList.add('on'));return ScrollTrigger.refresh()}
  gsap.to('#prog .thread i',{scaleY:1,ease:'none',scrollTrigger:{trigger:'#prog',start:'top 70%',end:'bottom 70%',scrub:true}});
  $$('.prow').forEach(r=>ScrollTrigger.create({trigger:r,start:'top 75%',onEnter:()=>r.classList.add('on')}));
  gsap.from('.arch,.wcard',{y:60,opacity:0,duration:1.1,ease:'power3.out',stagger:.2,scrollTrigger:{trigger:'#words',start:'top 70%',once:true}});
  gsap.from('.person',{x:i=>0,y:40,opacity:0,duration:1,stagger:.2,scrollTrigger:{trigger:'#couple',start:'top 70%',once:true}});
  const sp=$('#sPath'),SL=sp.getTotalLength?sp.getTotalLength():0;gsap.fromTo('.scal',{scale:.85,opacity:0},{scale:1,opacity:1,duration:1.2,ease:'power3.out',scrollTrigger:{trigger:'#couple',start:'top 65%',once:true}});
  gsap.fromTo(sp,{strokeDasharray:'1 4000',strokeDashoffset:0},{strokeDasharray:'4000 0',duration:2.2,ease:'power1.inOut',scrollTrigger:{trigger:'#couple',start:'top 65%',once:true}});
- const tr=$('#track');gsap.to(tr,{x:()=>-(tr.scrollWidth-innerWidth),ease:'none',scrollTrigger:{trigger:'#story',pin:true,scrub:.6,end:()=>'+='+tr.scrollWidth,invalidateOnRefresh:true}});
- gsap.fromTo('#story',{backgroundColor:'#2f6a52'},{backgroundColor:'#08160f',ease:'none',scrollTrigger:{trigger:'#story',start:'top top',end:()=>'+='+tr.scrollWidth,scrub:true}});
+ const story=$('#story'),tr=$('#track'),storyDistance=()=>Math.max(0,tr.scrollWidth-document.documentElement.clientWidth),setStoryProgress=self=>{
+  const progress=self.progress;
+  gsap.set(tr,{x:-storyDistance()*progress});
+  story.style.backgroundColor=gsap.utils.interpolate('#2f6a52','#08160f',progress)
+ };
+ gsap.set(tr,{x:0});
+ ScrollTrigger.create({trigger:story,start:'top top',end:()=>'+='+storyDistance(),pin:true,anticipatePin:1,invalidateOnRefresh:true,onUpdate:setStoryProgress,onRefresh:setStoryProgress});
+ setupAlbumAutoOpen();
  gsap.from('.slide .frm',{opacity:0,y:50,scale:.9,stagger:.08,duration:.9,scrollTrigger:{trigger:'#story',start:'top 80%',once:true}});
- if(!useAOS){
-  gsap.set('.gi',{opacity:0,transformPerspective:900,transformOrigin:'50% 85%'});
-  ScrollTrigger.batch('.gi',{start:'top 90%',once:true,onEnter:els=>{
-   gsap.fromTo(els,{y:64,opacity:0,rotateX:-14,scale:.9,filter:'blur(7px)'},{y:0,opacity:1,rotateX:0,scale:1,filter:'blur(0px)',duration:1.05,stagger:.14,ease:'power3.out',clearProps:'filter'});
-   els.forEach((e,i)=>{
-    gsap.fromTo(e.querySelector('img'),{scale:1.1},{scale:1,duration:1.35,ease:'power2.out',delay:i*.14});
-    setTimeout(()=>e.classList.add('shine'),i*140+500)
+ const galleryItems=$$('.gi');
+ gsap.set(galleryItems,{opacity:0,y:64,rotateX:-12,scale:.92,transformPerspective:1000,transformOrigin:'50% 85%'});
+ ScrollTrigger.batch(galleryItems,{start:'top 88%',once:true,interval:.12,batchMax:3,onEnter:items=>{
+  gsap.to(items,{opacity:1,y:0,rotateX:0,scale:1,duration:1,stagger:.16,ease:'power3.out',overwrite:true,onComplete:()=>{
+   items.forEach((item,i)=>{
+    gsap.fromTo(item.querySelector('img'),{scale:1.1},{scale:1,duration:1.25,ease:'power2.out',delay:i*.1});
+    item.style.setProperty('--shine-delay',`${(+item.dataset.i%5)*.7}s`);
+    item.classList.add('shine')
    })
   }})
- }else $$('.gi').forEach((e,i)=>setTimeout(()=>e.classList.add('shine'),i*140+500));
+ }});
  if(!lite&&matchMedia('(hover:hover)').matches)$$('.gi').forEach(g=>{g.addEventListener('pointermove',e=>{const r=g.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;gsap.to(g,{rotateY:x*10,rotateX:-y*10,duration:.3})});g.addEventListener('pointerleave',()=>gsap.to(g,{rotateY:0,rotateX:0,duration:.5}))});
  ScrollTrigger.refresh()}
