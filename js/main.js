@@ -191,7 +191,6 @@ function initScrollAnimations(){
   const image=el.matches('.sk,#qrs figure');
   el.dataset.aos=image?'zoom-in-up':'fade-up';
   el.dataset.aosDuration=image?'950':'800';
-  if(el.matches('.gi'))el.dataset.aosDelay=String(Math.min((+el.dataset.i%4)*80,240));
  });
  if(!aosReady){AOS.init({once:true,duration:850,easing:'ease-out-cubic',offset:90});aosReady=true}
  AOS.refreshHard();
@@ -230,19 +229,4 @@ function scenes(){$('#rest').style.display='block';gsap.set('#alb',{x:0,scale:1}
  ScrollTrigger.create({trigger:story,start:'top top',end:()=>'+='+storyDistance(),pin:true,anticipatePin:1,invalidateOnRefresh:true,onUpdate:setStoryProgress,onRefresh:setStoryProgress});
  setupAlbumAutoOpen();
  gsap.from('.slide .frm',{opacity:0,y:50,scale:.9,stagger:.08,duration:.9,scrollTrigger:{trigger:'#story',start:'top 80%',once:true}});
- const galleryItems=$$('.gi');
- const revealGalleryItem=(item,delay=0)=>{
-  gsap.fromTo(item,{opacity:0,y:64,rotateX:-12,scale:.92,transformPerspective:1000,transformOrigin:'50% 85%'},{opacity:1,y:0,rotateX:0,scale:1,duration:1,delay,ease:'power3.out',overwrite:true,clearProps:'transform',onComplete:()=>{
-   gsap.fromTo(item.querySelector('img'),{scale:1.1},{scale:1,duration:1.25,ease:'power2.out',clearProps:'transform'});
-   item.style.setProperty('--shine-delay',`${(+item.dataset.i%5)*.7}s`);
-   item.classList.add('shine')
-  }})
- };
- if('IntersectionObserver' in window){
-  const galleryObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
-   if(entry.isIntersecting){galleryObserver.unobserve(entry.target);revealGalleryItem(entry.target)}
-  }),{rootMargin:'0px 0px -8% 0px',threshold:.05});
-  galleryItems.forEach(item=>galleryObserver.observe(item))
- }else galleryItems.forEach((item,i)=>revealGalleryItem(item,i*.12));
- if(!lite&&matchMedia('(hover:hover)').matches)$$('.gi').forEach(g=>{g.addEventListener('pointermove',e=>{const r=g.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;gsap.to(g,{rotateY:x*10,rotateX:-y*10,duration:.3})});g.addEventListener('pointerleave',()=>gsap.to(g,{rotateY:0,rotateX:0,duration:.5}))});
  ScrollTrigger.refresh()}
