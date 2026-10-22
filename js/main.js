@@ -177,7 +177,6 @@ function initScrollAnimations(){
   ...$$('#rest > section h2'),
   ...$$('#rest > section .lead'),
   ...$$('#venue .sk'),
-  ...$$('#mas .gi'),
   ...$$('#qrs figure'),
   ...$$('#finale .sh > *')
  ];
@@ -224,4 +223,10 @@ function scenes(){$('#rest').style.display='block';gsap.set('#alb',{x:0,scale:1}
  ScrollTrigger.create({trigger:story,start:'top top',end:()=>'+='+storyDistance(),pin:true,anticipatePin:1,invalidateOnRefresh:true,onUpdate:setStoryProgress,onRefresh:setStoryProgress});
  setupAlbumAutoOpen();
  gsap.from('.slide .frm',{opacity:0,y:50,scale:.9,stagger:.08,duration:.9,scrollTrigger:{trigger:'#story',start:'top 80%',once:true}});
+ if('IntersectionObserver' in window){
+  const galleryObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
+   if(entry.isIntersecting){entry.target.classList.add('gallery-highlight');galleryObserver.unobserve(entry.target)}
+  }),{rootMargin:'0px 0px -8% 0px',threshold:.05});
+  $$('#mas .gi').forEach(item=>galleryObserver.observe(item))
+ }
  ScrollTrigger.refresh()}
